@@ -21,9 +21,9 @@ public class JobController {
      * @return the GeneralResponse object with that job post
      */
     @RequestMapping(method = RequestMethod.POST, value = "/")
-    public GeneralResponse searchOne(@RequestBody JobURL jobURL) throws IOException {
+    public GeneralResponse searchOne() throws IOException {
             GeneralResponse gr = new GeneralResponse();
-            gr.setData(workableSearch.scrapePost(jobURL.getUrl()));
+            gr.setData(workableSearch.scrapePost() + " rows updated");
             return gr;
     }
 }

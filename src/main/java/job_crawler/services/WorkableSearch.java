@@ -20,59 +20,73 @@ public class WorkableSearch {
 
     public static String REDIRECT_URL = "https://www.workable.com/";
 
-    public JobPost scrapePost(String URL) throws IOException {
+    public int scrapePost() throws IOException {
+        int counter = 0;
+        String cssJavaQuery = "p:contains(java):not(:contains(javascript)),li:contains(java):not(:contains(javascript))";
         JobPost job = new JobPost();
         try {
-            Document doc = Jsoup.connect(URL).get();
-            if (REDIRECT_URL.equals(doc.location())) {
-                System.out.println(URL + " is not a live posting\n");
-                return job;
+            for (long l = 747942589000L; l < 747942589004L; l++) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("https://www.workable.com/j/");
+                String hex = Long.toHexString(l).toUpperCase();
+                String URL = sb.append(hex).toString();
+                System.out.println(URL);
+                Document doc = Jsoup.connect(URL).get();
+                if (!REDIRECT_URL.equals(doc.location()) && (doc.select(cssJavaQuery).first() != null)) {
+                    Element jobTitle = doc.select("h1").first();
+                    Element location = doc.select(".meta").first();
+                    Element company = doc.select("title").first();
+                    Element javaCheck = doc.select(cssJavaQuery).first();
+
+                    job.setUrl(URL);
+                    job.setTitle(jobTitle.text());
+                    System.out.println("Title: " + job.getTitle());
+                    job.setCompany(company.text().split(" \u002D")[0]);
+                    System.out.println("Company: " + job.getCompany());
+                    job.setLocation(location.text().split(" \u00B7")[0]);
+                    System.out.println("Location: " + job.getLocation());
+                    job.setJavaCheck(javaCheck.text());
+                    System.out.println("JavaCheck: " + job.getJavaCheck());
+
+                    jobMapper.addJob(job);
+                    System.out.println("Job successfully added!");
+                    counter++;
+                }
             }
-
-            Element jobTitle = doc.select("h1").first();
-            Element location = doc.select(".meta").first();
-            Element company = doc.select("title").first();
-            Element javaCheck = doc.select("p:contains(java):not(:contains(javascript)),li:contains(java):not(:contains(javascript))").first();
-
-            job.setUrl(URL);
-            job.setTitle(jobTitle.text());
-            System.out.println("Title: " + job.getTitle());
-            job.setCompany(company.text().split(	" \u002D")[0]);
-            System.out.println("Company: " + job.getCompany());
-            job.setLocation(location.text().split(	" \u00B7")[0]);
-            System.out.println("Location: " + job.getLocation());
-            job.setJavaCheck(javaCheck.text());
-            System.out.println("JavaCheck: " + job.getJavaCheck());
-
-            jobMapper.addJob(job);
-            System.out.println("Job successfully added!");
-            return job;
 
         } catch (IOException e) {
             System.err.println(e.getMessage());
             throw new IOException("Error finding job");
         }
+        return counter;
     }
 
-
-//    public static void main(String[] args) {
-//        //1. Pick a URL from the frontier
-//        new WorkableSearch().getPageLinks("https://www.workable.com/j/24942CEFE3");
-//        new WorkableSearch().getPageLinks("https://www.workable.com/j/AE24DA328D");
-//        new WorkableSearch().getPageLinks("https://www.workable.com/j/404A8AD946");
-//        new WorkableSearch().getPageLinks("https://www.workable.com/j/24942CEFE4");
-
-
+    public static void loop() {
         //Generate loop of possible job titles
-//        String base = "https://www.workable.com/j/";
+        for (long l = 68719476736L; l < 747942589169L; l++) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("https://www.workable.com/j/");
+            String hex = Long.toHexString(l).toUpperCase();
+            sb.append(hex);
+            System.out.println(sb);
+
+        }
+
+//        for (long l = 0_000_000_000; l < 1099511627775L; l++) {
+//
 //        System.out.println(Long.parseLong("AE24DA328D", 16));
 //        System.out.println(Long.parseLong("404A8AD946", 16));
 //        System.out.println(Long.parseLong("24942CEFE4", 16));
 //        System.out.println(Long.toHexString(747942589069L).toUpperCase());
 //        System.out.println(Long.toHexString(276128520518L).toUpperCase());
 //        System.out.println(Long.toHexString(157104795620L).toUpperCase());
-//    }
+    }
 
+    public static void main(String[] args) {
+        System.out.println(Long.parseLong("AE24DA328D", 16));
+        System.out.println(Long.toHexString(747942589069L).toUpperCase());
+        loop();
+    }
 
 
 }
