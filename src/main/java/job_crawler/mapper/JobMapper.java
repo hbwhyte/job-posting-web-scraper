@@ -10,9 +10,9 @@ import org.apache.ibatis.annotations.Update;
 @Mapper
 public interface JobMapper {
 
-    String GET_BY_ID = ("SELECT * FROM workable-job-posts WHERE id = #{id}");
+    String GET_BY_ID = ("SELECT * FROM javajobs.`workable-job-posts` WHERE id = #{id}");
 
-    String ADD_JOB = ("INSERT INTO `workable-job-posts` " +
+    String ADD_JOB = ("INSERT INTO javajobs.`workable-job-posts` " +
             "(url, title, company, location, javaCheck) VALUES" +
             "(#{url}, #{title}, #{company}, #{location}, #{javaCheck})");
 

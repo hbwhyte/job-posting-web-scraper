@@ -7,7 +7,7 @@ public class JobPost {
     private String title;
     private String company;
     private String location;
-    private String javaCheck;
+    private boolean javaCheck;
 
     public int getId() {
         return id;
@@ -49,11 +49,11 @@ public class JobPost {
         this.location = location;
     }
 
-    public String getJavaCheck() {
+    public boolean isJavaCheck() {
         return javaCheck;
     }
 
-    public void setJavaCheck(String javaCheck) {
+    public void setJavaCheck(boolean javaCheck) {
         this.javaCheck = javaCheck;
     }
 }

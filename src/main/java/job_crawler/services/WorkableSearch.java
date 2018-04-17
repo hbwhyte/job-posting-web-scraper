@@ -5,6 +5,8 @@ import job_crawler.mapper.JobMapper;
 import job_crawler.model.JobPost;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
@@ -25,8 +27,12 @@ public class WorkableSearch {
     public static String REDIRECT_URL = "https://www.workable.com/";
 
     public int scrapePost() throws IOException {
+
+        Logger logger = LoggerFactory.getLogger(WorkableSearch.class);
+
         int counter = 0;
-        String cssJavaQuery = "p:contains(java):not(:contains(javascript)),li:contains(java):not(:contains(javascript))";
+        String cssJavaQuery = "p:contains(java):not(:contains(javascript))," +
+                "li:contains(java):not(:contains(javascript)),h1:contains(java):not(:contains(javascript))";
         JobPost job = new JobPost();
         ArrayList<Future<Pair<String, Document>>> futures = new ArrayList<>();
 
@@ -43,32 +49,34 @@ public class WorkableSearch {
             for (int i = 0; i < futures.size(); i++) {
                 Pair<String, Document> response = futures.get(i).get();
                 String url = response.getKey();
-                System.out.println(url);
+                //System.out.println(url);
                 Document doc = response.getValue();
                 if (!REDIRECT_URL.equals(doc.location())) { // && (doc.select(cssJavaQuery).first() != null)) {
                     Element jobTitle = doc.select("h1").first();
                     Element location = doc.select(".meta").first();
                     Element company = doc.select("title").first();
-                    Element javaCheck = doc.select(cssJavaQuery).first();
+                    // Checks if the job posting mentions "java"
+                    boolean javaCheck = false;
+                    if (doc.select(cssJavaQuery).first() != null) {javaCheck = true;}
 
                     job.setUrl(url);
                     job.setTitle(jobTitle.text());
-                    System.out.println("Title: " + job.getTitle());
+                    logger.info("Title: " + job.getTitle());
                     job.setCompany(company.text().split(" \u002D")[0]);
-                    System.out.println("Company: " + job.getCompany());
+                    logger.info("Company: " + job.getCompany());
                     job.setLocation(location.text().split(" \u00B7")[0]);
-                    System.out.println("Location: " + job.getLocation());
-                    job.setJavaCheck(javaCheck.text());
-                    System.out.println("JavaCheck: " + job.getJavaCheck());
+                    logger.info("Location: " + job.getLocation());
+                    job.setJavaCheck(javaCheck);
+                    logger.info("JavaCheck: " + job.isJavaCheck());
 
                     jobMapper.addJob(job);
-                    System.out.println("Job successfully added!");
+                    logger.info("Job successfully added!");
                     counter++;
                 }
             }
 
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            logger.error(e.getMessage());
             throw new IOException("Error finding job");
         }
         return counter;
